@@ -12,9 +12,14 @@ nel [`.gitignore`](.gitignore).
 | File | Descrizione |
 |------|-------------|
 | `settings.json` | Configurazione globale (tema, statusline, canale aggiornamenti) |
-| `statusline.ps1` | Script PowerShell della barra di stato (saluto, modello, contesto, usage, remoto git) |
+| `statusline.ps1` | Script PowerShell della barra di stato (saluto, modello, contesto, usage, remoto git, build N) |
 | `.gitignore` | Whitelist: ignora tutto tranne i file sopra |
 | `README.md` | Questo file |
+
+> L'indicatore **`build N`** nella statusline mostra il numero totale di commit di questo
+> repo di configurazione. Il conteggio usa `$PSScriptRoot` (la cartella che contiene lo
+> script), quindi funziona ovunque il repo sia clonato — `~/.claude`, `~/willown-code`, ecc.
+> — senza percorsi fissi.
 
 ## Cosa NON è versionato (di proposito)
 
