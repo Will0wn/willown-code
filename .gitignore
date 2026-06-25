@@ -1,0 +1,45 @@
+# ============================================================
+#  Backup configurazione Claude Code  ("Willown Code", privato)
+# ------------------------------------------------------------
+#  Strategia WHITELIST: per sicurezza ignoro TUTTO di default
+#  e includo esplicitamente solo i file di configurazione voluti.
+#  Cosi' nessun file sensibile (anche aggiunto in futuro) puo'
+#  finire nel repo per sbaglio.
+# ============================================================
+
+# 1) Ignora tutto
+/*
+
+# 2) Includi SOLO questi
+!/.gitignore
+!/settings.json
+!/statusline.ps1
+
+# ============================================================
+#  Esclusioni esplicite di sicurezza (ridondanti rispetto alla
+#  whitelist, ma volute: rendono evidente cosa NON va versionato)
+# ============================================================
+
+# --- Credenziali / token OAuth ---
+.credentials.json
+*credentials*.json
+.last-update-result.json
+
+# --- Configurazione locale per-macchina ---
+settings.local.json
+
+# --- Cronologia, sessioni, trascritti ---
+history.jsonl
+projects/
+sessions/
+session-env/
+shell-snapshots/
+file-history/
+paste-cache/
+
+# --- Stato / cache / artefatti di macchina ---
+.last-cleanup
+backups/
+cache/
+downloads/
+plugins/
