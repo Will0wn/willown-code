@@ -12,6 +12,7 @@
 
 # 2) Includi SOLO questi
 !/.gitignore
+!/README.md
 !/settings.json
 !/statusline.ps1
 
