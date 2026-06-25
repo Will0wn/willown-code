@@ -87,14 +87,27 @@ try {
     $git = Get-GitSeg $cDotRed $cDotRed 'git errore'
 }
 
-# saluto
+# saluto -- mappa esplicita email->nome, con fallback al comportamento attuale
+# Per aggiungere un caso: inserisci una riga @{ Match = '<sottostringa email>'; Name = '<Nome>' }.
+# Il match e' case-insensitive e la prima corrispondenza nell'ordine vince.
+$nameMap = @(
+    @{ Match = 'castinformaticait';  Name = 'Andrea' }
+    @{ Match = 'solarinoalessandro'; Name = 'Alessandro' }
+)
 $g = ''
 try {
     $e = (Get-Content (Join-Path $HOME '.claude.json') -Raw | ConvertFrom-Json).oauthAccount.emailAddress
     if ($e) {
-        $n = (($e -split '@')[0] -split '\.')[0]
-        if ($n) {
-            $name = $n.Substring(0, 1).ToUpper() + $n.Substring(1)
+        $name = $null
+        foreach ($entry in $nameMap) {
+            if ($e -like "*$($entry.Match)*") { $name = $entry.Name; break }
+        }
+        if (-not $name) {
+            # fallback: parte prima della @, primo token su '.', iniziale maiuscola
+            $n = (($e -split '@')[0] -split '\.')[0]
+            if ($n) { $name = $n.Substring(0, 1).ToUpper() + $n.Substring(1) }
+        }
+        if ($name) {
             $g = "${cCiao}Ciao, $name${reset} ${cSep}|${reset} "
         }
     }
