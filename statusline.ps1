@@ -113,5 +113,23 @@ try {
     }
 } catch {}
 
+# indicatore "build N": numero totale di commit del repo di config (~/willown-code).
+# Il conteggio viene SEMPRE eseguito nella cartella del repo di config, mai nella cwd
+# in cui la statusline e' aperta. Solo commit locali: nessun contatto col remoto.
+# Se la cartella non esiste o git fallisce, l'indicatore viene omesso senza rompere la barra.
+$cBuild = "$esc[2;38;2;107;114;128m"   # grigio tenue (dim) -> defilato
+$build = ''
+try {
+    $cfgRepo = Join-Path $HOME 'willown-code'
+    if ((Get-Command git -ErrorAction SilentlyContinue) -and (Test-Path -LiteralPath $cfgRepo)) {
+        if ((& git -C $cfgRepo rev-parse --is-inside-work-tree 2>$null) -eq 'true') {
+            $count = & git -C $cfgRepo rev-list --count HEAD 2>$null
+            if ($LASTEXITCODE -eq 0 -and $count -match '^\d+$') {
+                $build = " ${cBuild}| build $count${reset}"
+            }
+        }
+    }
+} catch { $build = '' }
+
 $sep = " ${cSep}|${reset} "
-[Console]::Out.Write("$g${cModel}$m${reset}$sep$ctx$sep$usage$git")
+[Console]::Out.Write("$g${cModel}$m${reset}$sep$ctx$sep$usage$git$build")
