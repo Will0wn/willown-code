@@ -23,9 +23,16 @@ nel [`.gitignore`](.gitignore).
 
 ## Cosa NON è versionato (di proposito)
 
-`.credentials.json` (token OAuth), `history.jsonl` (cronologia), `settings.local.json`,
-`projects/`, `sessions/`, `session-env/`, `shell-snapshots/`, `file-history/`,
-`paste-cache/`, `cache/`, `downloads/`, `backups/`, `plugins/`.
+Essendo una whitelist, **tutto** ciò che non è nella tabella sopra è ignorato. In più il
+`.gitignore` elenca esplicitamente, per chiarezza, i file sensibili e di macchina:
+
+- **Credenziali / token**: `.credentials.json`, `*credentials*.json`, `.claude.json`,
+  `.last-update-result.json`
+- **Config per-macchina**: `settings.local.json`
+- **Cronologia / sessioni / trascritti**: `history.jsonl`, `projects/`, `sessions/`,
+  `session-env/`, `shell-snapshots/`, `file-history/`, `paste-cache/`
+- **Stato / cache / artefatti**: `.last-cleanup`, `mcp-needs-auth-cache.json`, `backups/`,
+  `cache/`, `chrome/`, `daemon/`, `downloads/`, `plans/`, `plugins/`
 
 ## Aggiornare il backup
 
@@ -59,8 +66,8 @@ cd ~/.claude
 git init -b master
 git remote add origin https://github.com/Will0wn/willown-code.git
 git fetch origin
-git reset --mixed origin/master                # adotta la storia, working tree intatto
-git checkout origin/master -- README.md        # porta i file versionati mancanti
+git reset --mixed origin/master                # adotta la storia (i file ignorati restano intatti)
+git checkout origin/master -- .                # allinea i 4 file versionati alla versione di backup
 git branch --set-upstream-to=origin/master master
 ```
 
