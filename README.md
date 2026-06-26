@@ -13,7 +13,7 @@ nel [`.gitignore`](.gitignore).
 | File | Descrizione |
 |------|-------------|
 | `settings.json` | Configurazione globale (tema, statusline, canale aggiornamenti) |
-| `statusline.ps1` | Script PowerShell della barra di stato (saluto, modello, contesto, usage, remoto git, build N) |
+| `statusline.ps1` | Script PowerShell della barra di stato (saluto, modello, contesto, usage, account GitHub, build N) |
 | `.gitignore` | Whitelist: ignora tutto tranne i file sopra |
 | `README.md` | Questo file |
 

@@ -41,50 +41,49 @@ $m = $data.model.display_name
 $ctx   = Get-Segment 'Context' $data.context_window.used_percentage         $ctxScale
 $usage = Get-Segment 'Usage'   $data.rate_limits.five_hour.used_percentage  $useScale
 
-# indicatore remoto git (solo config locale, nessun contatto col server)
-$cDotGreen = "$esc[38;2;34;197;94m"    # verde  -> con remoto
-$cDotGrey  = "$esc[38;2;107;114;128m"  # grigio -> solo locale (no remoto / no repo)
-$cDotRed   = "$esc[38;2;239;68;68m"    # rosso  -> errore reale
-$dot   = [string][char]0x25CF          # pallino
-$arrow = [string][char]0x2192          # freccia
+# indicatore account GitHub connesso sulla MACCHINA (dato di macchina, non della cartella).
+# Cache PER-SESSIONE: 'gh auth status' viene eseguito UNA sola volta per sessione di Claude
+# Code e il risultato riusato a ogni refresh della barra. La cache e' un file indicizzato
+# per session_id (stabile per sessione) dentro cache/, che il .gitignore esclude. Nessuna
+# riesecuzione di gh a ogni tick della statusline.
+$cGhOn  = "$esc[38;2;34;197;94m"    # verde  -> account connesso
+$cGhOff = "$esc[38;2;107;114;128m"  # grigio -> nessun account
+$dot    = [string][char]0x25CF      # pallino
 
-# helper: "| ● testo" con colore del pallino e del testo
-function Get-GitSeg($dotColor, $textColor, $text) {
+# helper: " | ● testo" con colore del pallino e del testo
+function Get-GhSeg($dotColor, $textColor, $text) {
     return " ${cSep}|${reset} ${dotColor}$dot${reset} ${textColor}$text${reset}"
 }
 
-$git = ''
+$ghSeg = ''
 try {
-    $dir = $data.workspace.current_dir
-    if (-not $dir) { $dir = $data.cwd }
+    # chiave stabile tra i refresh della stessa sessione; fallback prudente se assente
+    $sid = $data.session_id
+    if (-not $sid) { $sid = 'nosession' }
+    $cacheDir  = Join-Path $HOME '.claude/cache'
+    $cacheFile = Join-Path $cacheDir "gh-account.$sid.txt"
 
-    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-        # git assente: comunque lavoro locale, ma segnalo il perche'
-        $git = Get-GitSeg $cDotGrey $cLabel 'locale (git non installato)'
-    }
-    elseif (-not $dir -or -not (Test-Path -LiteralPath $dir)) {
-        # vera anomalia: la cartella indicata non esiste
-        $git = Get-GitSeg $cDotRed $cDotRed 'cartella assente'
-    }
-    else {
-        $isRepo = & git -C $dir rev-parse --is-inside-work-tree 2>$null
-        if ($isRepo -ne 'true') {
-            # git c'e' ma qui non e' un repo
-            $git = Get-GitSeg $cDotGrey $cLabel 'locale (git installato ma non utilizzato)'
+    if (Test-Path -LiteralPath $cacheFile) {
+        # gia' interrogato in questa sessione: riuso il valore in cache
+        $acct = Get-Content -LiteralPath $cacheFile -Raw
+    } else {
+        # prima volta nella sessione: interrogo gh UNA volta sola e salvo il risultato
+        $acct = ''
+        if (Get-Command gh -ErrorAction SilentlyContinue) {
+            $out = & gh auth status 2>&1 | Out-String
+            if ($out -match 'Logged in to\s+\S+\s+account\s+(\S+)') { $acct = $matches[1] }
         }
-        else {
-            $url = & git -C $dir remote get-url origin 2>$null
-            if ($url) {
-                $repo = ($url -replace '\.git/?$', '') -replace '^.*[:/]([^/]+/[^/]+)$', '$1'
-                $git = Get-GitSeg $cDotGreen $cLabel "$arrow $repo"
-            } else {
-                # repo git ma senza remoto configurato
-                $git = Get-GitSeg $cDotGrey $cLabel 'locale (repo senza remoto)'
-            }
+        if (-not (Test-Path -LiteralPath $cacheDir)) {
+            New-Item -ItemType Directory -Path $cacheDir -Force | Out-Null
         }
+        Set-Content -LiteralPath $cacheFile -Value $acct -NoNewline
     }
+
+    $acct = "$acct".Trim()
+    if ($acct) { $ghSeg = Get-GhSeg $cGhOn  $cLabel "GitHub: $acct" }
+    else       { $ghSeg = Get-GhSeg $cGhOff $cLabel 'GitHub: off'   }
 } catch {
-    $git = Get-GitSeg $cDotRed $cDotRed 'git errore'
+    $ghSeg = Get-GhSeg $cGhOff $cLabel 'GitHub: off'
 }
 
 # saluto -- mappa esplicita email->nome, con fallback al comportamento attuale
@@ -138,4 +137,4 @@ try {
 } catch { $build = '' }
 
 $sep = " ${cSep}|${reset} "
-[Console]::Out.Write("$g${cModel}$m${reset}$sep$ctx$sep$usage$git$build")
+[Console]::Out.Write("$g${cModel}$m${reset}$sep$ctx$sep$usage$ghSeg$build")
