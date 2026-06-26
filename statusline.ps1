@@ -94,11 +94,13 @@ $nameMap = @(
     @{ Match = 'castinformaticait';  Name = 'Andrea' }
     @{ Match = 'solarinoalessandro'; Name = 'Alessandro' }
 )
-$g = ''
+$name = $null   # dichiarato fuori dal try: deve sopravvivere a un'eccezione
 try {
-    $e = (Get-Content (Join-Path $HOME '.claude.json') -Raw | ConvertFrom-Json).oauthAccount.emailAddress
+    # -AsHashtable: tollera la chiave a nome vuoto introdotta nel .claude.json
+    # dall'auto-update (ConvertFrom-Json "stretto" vi lanciava un'eccezione).
+    $cfg = Get-Content (Join-Path $HOME '.claude.json') -Raw | ConvertFrom-Json -AsHashtable
+    $e = $cfg.oauthAccount.emailAddress
     if ($e) {
-        $name = $null
         foreach ($entry in $nameMap) {
             if ($e -like "*$($entry.Match)*") { $name = $entry.Name; break }
         }
@@ -107,11 +109,13 @@ try {
             $n = (($e -split '@')[0] -split '\.')[0]
             if ($n) { $name = $n.Substring(0, 1).ToUpper() + $n.Substring(1) }
         }
-        if ($name) {
-            $g = "${cCiao}Ciao, $name${reset} ${cSep}|${reset} "
-        }
     }
 } catch {}
+# fallback VISIBILE: se la lettura fallisce, l'email manca o il nome non si
+# determina (incluso un futuro guasto che fa scattare il catch), mostra
+# "Ciao, ?" invece di omettere il saluto -- cosi' il problema si nota subito.
+if (-not $name) { $name = '?' }
+$g = "${cCiao}Ciao, $name${reset} ${cSep}|${reset} "
 
 # indicatore "build N": numero totale di commit del repo di config.
 # Il repo coincide con la cartella che contiene QUESTO script ($PSScriptRoot): cosi'
