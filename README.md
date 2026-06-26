@@ -14,8 +14,12 @@ nel [`.gitignore`](.gitignore).
 |------|-------------|
 | `settings.json` | Configurazione globale (tema, statusline, canale aggiornamenti) |
 | `statusline.ps1` | Script PowerShell della barra di stato (saluto, modello, contesto, usage, account GitHub, build N) |
+| `CLAUDE.md` | Istruzioni operative per Claude Code (adozione `~/.claude`, pull/push, sicurezza) |
 | `.gitignore` | Whitelist: ignora tutto tranne i file sopra |
 | `README.md` | Questo file |
+
+> Sono versionati **5 file** in tutto: i 4 di configurazione più `CLAUDE.md`. Ogni nuovo
+> file da versionare va aggiunto **esplicitamente** alla whitelist nel `.gitignore`.
 
 > L'indicatore **`build N`** nella statusline mostra il numero totale di commit di questo
 > repo di configurazione. Il conteggio usa `$PSScriptRoot` (la cartella che contiene lo
@@ -67,7 +71,7 @@ git init -b master
 git remote add origin https://github.com/Will0wn/willown-code.git
 git fetch origin
 git reset --mixed origin/master                # adotta la storia (i file ignorati restano intatti)
-git checkout origin/master -- .                # allinea i 4 file versionati alla versione di backup
+git checkout origin/master -- .                # allinea i 5 file versionati alla versione di backup
 git branch --set-upstream-to=origin/master master
 ```
 

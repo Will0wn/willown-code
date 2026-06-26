@@ -16,6 +16,7 @@
 !/README.md
 !/settings.json
 !/statusline.ps1
+!/CLAUDE.md
 
 # ============================================================
 #  Esclusioni esplicite di sicurezza (ridondanti rispetto alla
