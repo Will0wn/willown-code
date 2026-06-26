@@ -1,5 +1,6 @@
 # ============================================================
 #  Backup configurazione Claude Code  ("Willown Code", privato)
+#  Questa cartella ~/.claude E' essa stessa il repo git.
 # ------------------------------------------------------------
 #  Strategia WHITELIST: per sicurezza ignoro TUTTO di default
 #  e includo esplicitamente solo i file di configurazione voluti.
@@ -24,6 +25,7 @@
 # --- Credenziali / token OAuth ---
 .credentials.json
 *credentials*.json
+.claude.json
 .last-update-result.json
 
 # --- Configurazione locale per-macchina ---
@@ -40,7 +42,11 @@ paste-cache/
 
 # --- Stato / cache / artefatti di macchina ---
 .last-cleanup
+mcp-needs-auth-cache.json
 backups/
 cache/
+chrome/
+daemon/
 downloads/
+plans/
 plugins/
