@@ -1,7 +1,7 @@
 # willown-code
 
-La mia configurazione di [Claude Code](https://claude.com/claude-code), versionata.
-La cartella `~/.claude` è il repo stesso: cloni, fai login, e tutto è al suo posto.
+My [Claude Code](https://claude.com/claude-code) setup, under version control.
+The `~/.claude` folder is the repo itself: clone it, log in, and everything is in place.
 
 ```
 Ciao, Nome | Opus 5.5 | Context ████░░░░░░ 42% | Usage ██░░░░░░░░ 18% | ● GitHub: Will0wn | build 11
@@ -9,28 +9,28 @@ Ciao, Nome | Opus 5.5 | Context ████░░░░░░ 42% | Usage █�
 
 ## Statusline
 
-Uno script PowerShell che Claude Code richiama a ogni aggiornamento della barra. Da sinistra:
+A PowerShell script that Claude Code calls every time the bar refreshes. From left to right:
 
-- saluto con il nome dell'account Claude
-- modello in uso
-- contesto occupato: verde sotto il 50%, giallo fino all'80%, rosso oltre
-- utilizzo della finestra di 5 ore
-- account GitHub attivo sulla macchina
-- numero di commit di questo repo, come numero di build
+- a greeting with the Claude account's name
+- the current model
+- context usage: green below 50%, yellow up to 80%, red above
+- usage of the 5-hour window
+- the GitHub account active on the machine
+- the commit count of this repo, as a build number
 
-Serve PowerShell 7 (`pwsh`) e un terminale con truecolor, ad esempio Windows Terminal.
+Requires PowerShell 7 (`pwsh`) and a truecolor terminal, such as Windows Terminal.
 
-## Installazione
+## Install
 
-Su un PC nuovo:
+On a new machine:
 
 ```bash
 gh repo clone Will0wn/willown-code ~/.claude
 ```
 
-Poi avvia Claude Code e fai login: le credenziali non sono nel repo.
+Then start Claude Code and log in: credentials are not in the repo.
 
-Se `~/.claude` esiste già, adotta il repo senza toccare i file locali:
+If `~/.claude` already exists, adopt the repo without touching local files:
 
 ```bash
 cd ~/.claude
@@ -42,25 +42,25 @@ git checkout origin/master -- .
 git branch --set-upstream-to=origin/master master
 ```
 
-## Aggiornare
+## Update
 
 ```bash
 cd ~/.claude
-git pull --ff-only                               # scarica l'ultima versione
-git add -A && git commit -m "..." && git push    # salva le modifiche
+git pull --ff-only                               # get the latest version
+git add -A && git commit -m "..." && git push    # save your changes
 ```
 
-## Contenuto
+## Contents
 
-| File | A cosa serve |
-|------|--------------|
-| `settings.json` | impostazioni globali: statusline, tema, aggiornamenti |
-| `statusline.ps1` | la barra di stato |
-| `CLAUDE.md` | istruzioni operative per Claude su questo repo |
-| `.gitignore` | whitelist dei file versionati |
+| File | Purpose |
+|------|---------|
+| `settings.json` | global settings: statusline, theme, updates |
+| `statusline.ps1` | the status bar |
+| `CLAUDE.md` | operating instructions for Claude on this repo |
+| `.gitignore` | whitelist of tracked files |
 
-## Sicurezza
+## Security
 
-Il `.gitignore` parte da `/*` e riammette solo i file della tabella. Credenziali, cronologia,
-sessioni e cache restano fuori, anche quelli che Claude Code creerà in futuro.
-Per versionare un nuovo file serve una riga esplicita `!/<file>`.
+The `.gitignore` starts from `/*` and re-includes only the files in the table. Credentials,
+history, sessions and cache stay out, including anything Claude Code creates in the future.
+Tracking a new file requires an explicit `!/<file>` line.
