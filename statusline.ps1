@@ -159,19 +159,22 @@ $sep = " ${cSep}|${reset} "
 # P = viola, . = trasparente (occhi e bocca sono "buchi")
 $px = @{ 'P' = '168;85;247' }
 $art = @(
-    'P..........P'
-    'PP.PPPPPP.PP'
-    '.PPPPPPPPPP.'
-    'PP..PPPP..PP'
-    'PPP..PP..PPP'
-    'PPPPPPPPPPPP'
-    'PP.PPPPPP.PP'
-    '.PP......PP.'
+    'P.........P'
+    'PP.PPPPP.PP'
+    '.PPPPPPPPP.'
+    'PP..PPP..PP'
+    'PPP..P..PPP'
+    'PPPPPPPPPPP'
+    'PP.PPPPP.PP'
+    '.PP.....PP.'
 )
 # animazione "tamagotchi": con refreshInterval la barra gira ogni secondo e il fotogramma
 # dipende dal secondo corrente -> ondeggia di una colonna e ogni tanto sbatte le palpebre
-$tick = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds() % 6
-if ($tick -eq 3) { $art[3] = 'PPPPPPPPPPPP'; $art[4] = 'PP..PPPP..PP' }   # occhi chiusi
+# ciclo di 10s: 0 normale, 1 spostato, 2-3 normale, 4 spostato, 5 normale,
+# 6 occhi chiusi, 7-8 sguardo alternativo, 9 occhi chiusi (lo sguardo cambia sempre a occhi chiusi)
+$tick = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds() % 10
+if ($tick -in 6, 9) { $art[3] = 'PPPPPPPPPPP'; $art[4] = 'PP..PPP..PP' }   # occhi chiusi
+if ($tick -in 7, 8) { $art[4] = 'PPP.PPP.PPP' }                          # sguardo alternativo
 $shift = $tick -in 1, 4
 $art = $art | ForEach-Object { if ($shift) { ".$_" } else { "$_." } }
 $logo = for ($r = 0; $r -lt $art.Count; $r += 2) {
