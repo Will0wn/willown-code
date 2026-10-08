@@ -130,7 +130,8 @@ try {
 # determina (incluso un futuro guasto che fa scattare il catch), mostra
 # "Ciao, ?" invece di omettere il saluto -- cosi' il problema si nota subito.
 if (-not $name) { $name = '?' }
-$g = "${cCiao}Ciao, $name${reset}"
+# coda da diavolo dopo il nome, stesso viola del tamagotchi
+$g = "${cCiao}Ciao, $name${reset} $esc[38;2;168;85;247m$([char]0x219D)${reset}"
 
 # indicatore "build N": numero totale di commit del repo di config.
 # Il repo coincide con la cartella che contiene QUESTO script ($PSScriptRoot): cosi'
