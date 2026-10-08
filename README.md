@@ -1,86 +1,66 @@
-# Willown Code — Backup configurazione Claude Code
+# willown-code
 
-Backup **privato** della configurazione globale di [Claude Code](https://claude.com/claude-code).
-La cartella `~/.claude` **è essa stessa** questo repo git: su ogni PC si lavora sempre dalla
-stessa cartella, senza copiare file a mano.
+La mia configurazione di [Claude Code](https://claude.com/claude-code), versionata.
+La cartella `~/.claude` è il repo stesso: cloni, fai login, e tutto è al suo posto.
 
-Per sicurezza il repo versiona **solo** la configurazione non sensibile. Tutto il resto
-(credenziali OAuth, cronologia, sessioni, cache, plugin) è escluso tramite una whitelist
-nel [`.gitignore`](.gitignore).
-
-## Contenuto del repo
-
-| File | Descrizione |
-|------|-------------|
-| `settings.json` | Configurazione globale (tema, statusline, canale aggiornamenti) |
-| `statusline.ps1` | Script PowerShell della barra di stato (saluto, modello, contesto, usage, account GitHub, build N) |
-| `CLAUDE.md` | Istruzioni operative per Claude Code (adozione `~/.claude`, pull/push, sicurezza) |
-| `.gitignore` | Whitelist: ignora tutto tranne i file sopra |
-| `README.md` | Questo file |
-
-> Sono versionati **5 file** in tutto: i 4 di configurazione più `CLAUDE.md`. Ogni nuovo
-> file da versionare va aggiunto **esplicitamente** alla whitelist nel `.gitignore`.
-
-> L'indicatore **`build N`** nella statusline mostra il numero totale di commit di questo
-> repo di configurazione. Il conteggio usa `$PSScriptRoot` (la cartella che contiene lo
-> script): poiché `~/.claude` è il repo, funziona automaticamente senza percorsi fissi.
-
-## Cosa NON è versionato (di proposito)
-
-Essendo una whitelist, **tutto** ciò che non è nella tabella sopra è ignorato. In più il
-`.gitignore` elenca esplicitamente, per chiarezza, i file sensibili e di macchina:
-
-- **Credenziali / token**: `.credentials.json`, `*credentials*.json`, `.claude.json`,
-  `.last-update-result.json`
-- **Config per-macchina**: `settings.local.json`
-- **Cronologia / sessioni / trascritti**: `history.jsonl`, `projects/`, `sessions/`,
-  `session-env/`, `shell-snapshots/`, `file-history/`, `paste-cache/`
-- **Stato / cache / artefatti**: `.last-cleanup`, `mcp-needs-auth-cache.json`, `backups/`,
-  `cache/`, `chrome/`, `daemon/`, `downloads/`, `plans/`, `plugins/`
-
-## Aggiornare il backup
-
-Dopo aver modificato la configurazione:
-
-```bash
-cd ~/.claude
-git add -A
-git commit -m "Aggiorna configurazione"
-git push
+```
+Ciao, Alessandro | Opus 5.5 | Context ████░░░░░░ 42% | Usage ██░░░░░░░░ 18% | ● GitHub: Will0wn | build 11
 ```
 
-## Ripristinare su un nuovo PC
+## Statusline
 
-> Richiede `git` e (consigliato) [GitHub CLI](https://cli.github.com/) autenticato sul
-> proprio account: `gh auth login --web`.
+Uno script PowerShell che Claude Code richiama a ogni aggiornamento della barra. Da sinistra:
 
-La cartella `~/.claude` **è** il repo: si clona direttamente lì, senza copiare file a mano.
+- saluto con il nome dell'account Claude
+- modello in uso
+- contesto occupato: verde sotto il 50%, giallo fino all'80%, rosso oltre
+- utilizzo della finestra di 5 ore
+- account GitHub attivo sulla macchina
+- numero di commit di questo repo, come numero di build
 
-**PC pulito** (la cartella `~/.claude` non esiste ancora):
+Serve PowerShell 7 (`pwsh`) e un terminale con truecolor, ad esempio Windows Terminal.
+
+## Installazione
+
+Su un PC nuovo:
 
 ```bash
 gh repo clone Will0wn/willown-code ~/.claude
 ```
 
-**Cartella `~/.claude` già esistente** (creata da Claude Code) — adotta il repo senza
-perdere i file locali (credenziali, sessioni e cache restano dove sono, e sono ignorati):
+Poi avvia Claude Code e fai login: le credenziali non sono nel repo.
+
+Se `~/.claude` esiste già, adotta il repo senza toccare i file locali:
 
 ```bash
 cd ~/.claude
 git init -b master
 git remote add origin https://github.com/Will0wn/willown-code.git
 git fetch origin
-git reset --mixed origin/master                # adotta la storia (i file ignorati restano intatti)
-git checkout origin/master -- .                # allinea i 5 file versionati alla versione di backup
+git reset --mixed origin/master
+git checkout origin/master -- .
 git branch --set-upstream-to=origin/master master
 ```
 
-### Note importanti per il ripristino
+## Aggiornare
 
-- **Login**: su un PC nuovo va rifatto il login di Claude Code — le credenziali OAuth
-  **non** sono nel repo (per sicurezza).
-- **Path della statusline**: in `settings.json` il comando punta a `~/.claude/statusline.ps1`
-  (path portabile con `~`), quindi è **identico su ogni PC** — nessuna modifica manuale anche
-  se il nome utente è diverso.
-- **Requisiti statusline**: PowerShell 7+ (`pwsh`) nel PATH e un terminale con supporto
-  truecolor (es. Windows Terminal) per i colori.
+```bash
+cd ~/.claude
+git pull --ff-only                               # scarica l'ultima versione
+git add -A && git commit -m "..." && git push    # salva le modifiche
+```
+
+## Contenuto
+
+| File | A cosa serve |
+|------|--------------|
+| `settings.json` | impostazioni globali: statusline, tema, aggiornamenti |
+| `statusline.ps1` | la barra di stato |
+| `CLAUDE.md` | istruzioni operative per Claude su questo repo |
+| `.gitignore` | whitelist dei file versionati |
+
+## Sicurezza
+
+Il `.gitignore` parte da `/*` e riammette solo i file della tabella. Credenziali, cronologia,
+sessioni e cache restano fuori, anche quelli che Claude Code creerà in futuro.
+Per versionare un nuovo file serve una riga esplicita `!/<file>`.
