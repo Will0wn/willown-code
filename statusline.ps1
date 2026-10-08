@@ -49,9 +49,9 @@ $resetAt = $data.rate_limits.five_hour.resets_at
 if ($resetAt) {
     $when = [DateTimeOffset]::FromUnixTimeSeconds([long]$resetAt).LocalDateTime
     $left = $when - (Get-Date)
-    $in = if ($left.TotalMinutes -le 0) { 'ora' } elseif ($left.TotalHours -ge 1) { '{0}h {1:00}m' -f [int][math]::Floor($left.TotalHours), $left.Minutes } else { '{0}m' -f [int][math]::Ceiling($left.TotalMinutes) }
+    $in = if ($left.TotalMinutes -le 0) { 'now' } elseif ($left.TotalHours -ge 1) { '{0}h {1:00}m' -f [int][math]::Floor($left.TotalHours), $left.Minutes } else { '{0}m' -f [int][math]::Ceiling($left.TotalMinutes) }
     $cDim = "$esc[2;38;2;180;186;196m"
-    $usage += " ${cSep}·${reset} ${cLabel}$([char]0x21BB) $($when.ToString('HH:mm'))${reset} ${cDim}tra $in${reset}"
+    $usage += " ${cSep}·${reset} ${cLabel}$([char]0x21BB) $($when.ToString('HH:mm'))${reset} ${cDim}in $in${reset}"
 }
 
 # indicatore account GitHub connesso sulla MACCHINA (dato di macchina, non della cartella).
@@ -111,8 +111,11 @@ try {
     # -AsHashtable: tollera la chiave a nome vuoto introdotta nel .claude.json
     # dall'auto-update (ConvertFrom-Json "stretto" vi lanciava un'eccezione).
     $cfg = Get-Content (Join-Path $HOME '.claude.json') -Raw | ConvertFrom-Json -AsHashtable
+    # prima scelta: il nome visualizzato dell'account Claude
+    $dn = "$($cfg.oauthAccount.displayName)".Trim()
+    if ($dn) { $name = ($dn -split '\s+')[0] }
     $e = $cfg.oauthAccount.emailAddress
-    if ($e) {
+    if ($e -and -not $name) {
         foreach ($entry in $nameMap) {
             if ($e -like "*$($entry.Match)*") { $name = $entry.Name; break }
         }
@@ -206,7 +209,7 @@ try {
         $mcpNames = @{}
         $mcpText = ((Get-Content -LiteralPath $mcpFile -Raw).Trim() -split ', ' | Where-Object { $_ } |
             ForEach-Object { if ($mcpNames.ContainsKey($_)) { $mcpNames[$_] } else { $_ } }) -join ', '
-        if (-not $mcpText) { $mcpText = 'nessuno' }
+        if (-not $mcpText) { $mcpText = 'none' }
     } elseif (-not (Test-Path -LiteralPath $mcpLock) -or
               ((Get-Date) - (Get-Item -LiteralPath $mcpLock).LastWriteTime).TotalSeconds -gt 60) {
         if (-not (Test-Path -LiteralPath $cacheDir)) { New-Item -ItemType Directory -Path $cacheDir -Force | Out-Null }
