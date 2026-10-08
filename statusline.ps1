@@ -198,7 +198,12 @@ $cDir = "$esc[38;2;96;165;250m"   # blu -> cartella
 $dir = $data.workspace.current_dir
 if (-not $dir) { $dir = $data.cwd }
 $folder = if ($dir) { Split-Path -Leaf $dir } else { '?' }
-[Console]::Out.Write("`n$($logo[2])${cLabel}Folder${reset} ${cDir}$folder${reset}$ghSeg")
+# estensioni di macchina: statusline.local.ps1 (fuori dal repo) puo' impostare $localSeg,
+# mostrato dopo la cartella
+$localSeg = ''
+$localExt = Join-Path $PSScriptRoot 'statusline.local.ps1'
+if (Test-Path -LiteralPath $localExt) { try { . $localExt } catch { $localSeg = '' } }
+[Console]::Out.Write("`n$($logo[2])${cLabel}Folder${reset} ${cDir}$folder${reset}$localSeg$ghSeg")
 
 # terza riga: MCP connessi. 'claude mcp list' impiega ~8s, quindi gira in background
 # una volta per sessione e scrive in cache; finche' la cache non c'e' mostra "...".
