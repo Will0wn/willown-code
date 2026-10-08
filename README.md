@@ -4,7 +4,7 @@ La mia configurazione di [Claude Code](https://claude.com/claude-code), versiona
 La cartella `~/.claude` è il repo stesso: cloni, fai login, e tutto è al suo posto.
 
 ```
-Ciao, Alessandro | Opus 5.5 | Context ████░░░░░░ 42% | Usage ██░░░░░░░░ 18% | ● GitHub: Will0wn | build 11
+Ciao, Nome | Opus 5.5 | Context ████░░░░░░ 42% | Usage ██░░░░░░░░ 18% | ● GitHub: Will0wn | build 11
 ```
 
 ## Statusline
