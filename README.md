@@ -3,7 +3,7 @@
 My [Claude Code](https://claude.com/claude-code) setup, under version control.
 The `~/.claude` folder is the repo itself: clone it, log in, and everything is in place.
 
-![Statusline preview](preview.svg?v=fdf05d0)
+![Statusline preview](statusline-preview.svg)
 
 ## Statusline
 
@@ -66,7 +66,7 @@ git add -A && git commit -m "..." && git push    # save your changes
 |------|---------|
 | `settings.json` | global settings: statusline, theme, updates |
 | `statusline.ps1` | the status bar |
-| `preview.svg` | the preview image above |
+| `statusline-preview.svg` | the preview image above |
 | `CLAUDE.md` | operating instructions for Claude on this repo |
 | `.gitignore` | whitelist of tracked files |
 
