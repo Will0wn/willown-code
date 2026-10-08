@@ -38,8 +38,21 @@ function Get-Segment($label, $value, $scale) {
 $data = [Console]::In.ReadToEnd() | ConvertFrom-Json
 $m = $data.model.display_name
 
+# effort del modello (low/medium/high/xhigh/max) accanto al nome; omesso se assente
+$cEffort = "$esc[38;2;253;224;71m"   # giallo chiaro -> effort
+if ($data.effort.level) { $m += " ${reset}${cSep}·${reset} ${cEffort}$($data.effort.level)" }
+
 $ctx   = Get-Segment 'Context' $data.context_window.used_percentage         $ctxScale
 $usage = Get-Segment 'Usage'   $data.rate_limits.five_hour.used_percentage  $useScale
+# orario di reset della finestra di 5 ore, in ora locale
+$resetAt = $data.rate_limits.five_hour.resets_at
+if ($resetAt) {
+    $when = [DateTimeOffset]::FromUnixTimeSeconds([long]$resetAt).LocalDateTime
+    $left = $when - (Get-Date)
+    $in = if ($left.TotalMinutes -le 0) { 'ora' } elseif ($left.TotalHours -ge 1) { '{0}h {1:00}m' -f [int][math]::Floor($left.TotalHours), $left.Minutes } else { '{0}m' -f [int][math]::Ceiling($left.TotalMinutes) }
+    $cDim = "$esc[2;38;2;180;186;196m"
+    $usage += " ${cSep}·${reset} ${cLabel}$([char]0x21BB) $($when.ToString('HH:mm'))${reset} ${cDim}tra $in${reset}"
+}
 
 # indicatore account GitHub connesso sulla MACCHINA (dato di macchina, non della cartella).
 # Cache PER-SESSIONE: 'gh auth status' viene eseguito UNA sola volta per sessione di Claude
@@ -137,4 +150,81 @@ try {
 } catch { $build = '' }
 
 $sep = " ${cSep}|${reset} "
-[Console]::Out.Write("$g${cModel}$m${reset}$sep$ctx$sep$usage$ghSeg$build")
+
+# diavoletto 😈 in pixel art alto 4 righe: ogni cella e' un mezzo blocco con due colori
+# (sopra = primo piano, sotto = sfondo), quindi 8 righe di pixel.
+# P = viola, . = trasparente (occhi e bocca sono "buchi")
+$px = @{ 'P' = '168;85;247' }
+$art = @(
+    'P..........P'
+    'PP.PPPPPP.PP'
+    '.PPPPPPPPPP.'
+    'PP..PPPP..PP'
+    'PPP..PP..PPP'
+    'PPPPPPPPPPPP'
+    'PP.PPPPPP.PP'
+    '.PP......PP.'
+)
+# animazione "tamagotchi": con refreshInterval la barra gira ogni secondo e il fotogramma
+# dipende dal secondo corrente -> ondeggia di una colonna e ogni tanto sbatte le palpebre
+$tick = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds() % 6
+if ($tick -eq 3) { $art[3] = 'PPPPPPPPPPPP'; $art[4] = 'PP..PPPP..PP' }   # occhi chiusi
+$shift = $tick -in 1, 4
+$art = $art | ForEach-Object { if ($shift) { ".$_" } else { "$_." } }
+$logo = for ($r = 0; $r -lt $art.Count; $r += 2) {
+    $line = ''
+    for ($c = 0; $c -lt $art[$r].Length; $c++) {
+        $t = $px["$($art[$r][$c])"]; $b = $px["$($art[$r + 1][$c])"]
+        if ($t -and $b) { $line += "$esc[38;2;${t}m$esc[48;2;${b}m$([char]0x2580)$reset" }
+        elseif ($t)     { $line += "$esc[38;2;${t}m$([char]0x2580)$reset" }
+        elseif ($b)     { $line += "$esc[38;2;${b}m$([char]0x2584)$reset" }
+        else            { $line += ' ' }
+    }
+    # il reset iniziale impedisce che gli spazi in testa vengano tolti (sposterebbe il testo)
+    "$reset$line "
+}
+[Console]::Out.Write("$($logo[0])$g${cModel}$m${reset}$sep$ctx$sep$usage$build")
+
+# seconda riga: nome della cartella di lavoro
+$cDir = "$esc[38;2;96;165;250m"   # blu -> cartella
+$dir = $data.workspace.current_dir
+if (-not $dir) { $dir = $data.cwd }
+$folder = if ($dir) { Split-Path -Leaf $dir } else { '?' }
+[Console]::Out.Write("`n$($logo[1])${cLabel}Folder${reset} ${cDir}$folder${reset}$ghSeg")
+
+# terza riga: MCP connessi. 'claude mcp list' impiega ~8s, quindi gira in background
+# una volta per sessione e scrive in cache; finche' la cache non c'e' mostra "...".
+$cMcp = "$esc[38;2;52;211;153m"   # verde acqua -> MCP
+$mcpText = '...'
+try {
+    $sid = $data.session_id; if (-not $sid) { $sid = 'nosession' }
+    $cacheDir = Join-Path $HOME '.claude/cache'
+    $mcpFile  = Join-Path $cacheDir "mcp.$sid.txt"
+    $mcpLock  = "$mcpFile.lock"
+    if (Test-Path -LiteralPath $mcpFile) {
+        # nomi visualizzati: nome server -> etichetta
+        $mcpNames = @{}
+        $mcpText = ((Get-Content -LiteralPath $mcpFile -Raw).Trim() -split ', ' | Where-Object { $_ } |
+            ForEach-Object { if ($mcpNames.ContainsKey($_)) { $mcpNames[$_] } else { $_ } }) -join ', '
+        if (-not $mcpText) { $mcpText = 'nessuno' }
+    } elseif (-not (Test-Path -LiteralPath $mcpLock) -or
+              ((Get-Date) - (Get-Item -LiteralPath $mcpLock).LastWriteTime).TotalSeconds -gt 60) {
+        if (-not (Test-Path -LiteralPath $cacheDir)) { New-Item -ItemType Directory -Path $cacheDir -Force | Out-Null }
+        New-Item -ItemType File -Path $mcpLock -Force | Out-Null
+        $job = @"
+`$names = claude mcp list 2>`$null | Where-Object { `$_ -match 'Connected' } | ForEach-Object { ((`$_ -split ': ', 2)[0]) -replace '^claude\.ai ', '' }
+Set-Content -LiteralPath '$mcpFile' -Value (`$names -join ', ') -NoNewline
+Remove-Item -LiteralPath '$mcpLock' -Force
+"@
+        $enc = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($job))
+        # avvio via WMI: il processo nasce fuori dal job di Claude Code, che altrimenti
+        # lo termina insieme alla statusline prima che finisca
+        # WMI non cerca nel PATH: serve il percorso completo di pwsh
+        $cmdLine = "`"$(Join-Path $PSHOME 'pwsh.exe')`" -NoProfile -WindowStyle Hidden -EncodedCommand $enc"
+        Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $cmdLine } | Out-Null
+    }
+} catch { $mcpText = '?' }
+[Console]::Out.Write("`n$($logo[2])${cLabel}MCP${reset} ${cMcp}$mcpText${reset}")
+
+# quarta riga: per ora solo la base del diavoletto
+[Console]::Out.Write("`n$($logo[3])")

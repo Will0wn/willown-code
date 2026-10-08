@@ -1,7 +1,8 @@
 {
   "statusLine": {
     "type": "command",
-    "command": "pwsh -NoProfile -File ~/.claude/statusline.ps1"
+    "command": "pwsh -NoProfile -File ~/.claude/statusline.ps1",
+    "refreshInterval": 1
   },
   "autoUpdatesChannel": "latest",
   "theme": "dark",

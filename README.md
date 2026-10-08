@@ -3,20 +3,18 @@
 My [Claude Code](https://claude.com/claude-code) setup, under version control.
 The `~/.claude` folder is the repo itself: clone it, log in, and everything is in place.
 
-```
-Ciao, Nome | Opus 5.5 | Context ████░░░░░░ 42% | Usage ██░░░░░░░░ 18% | ● GitHub: Will0wn | build 11
-```
+![Statusline preview](preview.svg)
 
 ## Statusline
 
-A PowerShell script that Claude Code calls every time the bar refreshes. From left to right:
+A PowerShell script that Claude Code runs every second. Next to a pixel-art devil that sways
+and blinks like a tamagotchi, it shows:
 
-- a greeting with the Claude account's name
-- the current model
-- context usage: green below 50%, yellow up to 80%, red above
-- usage of the 5-hour window
-- the GitHub account active on the machine
-- the commit count of this repo, as a build number
+1. greeting, model and effort level, context usage (green below 50%, yellow up to 80%, red
+   above), usage of the 5-hour window with reset time and countdown, and the commit count
+   of this repo as a build number
+2. the current folder and the GitHub account active on the machine
+3. the connected MCP servers, loaded in the background once per session
 
 Requires PowerShell 7 (`pwsh`) and a truecolor terminal, such as Windows Terminal.
 
@@ -68,6 +66,7 @@ git add -A && git commit -m "..." && git push    # save your changes
 |------|---------|
 | `settings.json` | global settings: statusline, theme, updates |
 | `statusline.ps1` | the status bar |
+| `preview.svg` | the preview image above |
 | `CLAUDE.md` | operating instructions for Claude on this repo |
 | `.gitignore` | whitelist of tracked files |
 
