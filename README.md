@@ -22,6 +22,18 @@ Requires PowerShell 7 (`pwsh`) and a truecolor terminal, such as Windows Termina
 
 ## Install
 
+The easiest way:
+
+1. Download the ZIP: **Code > Download ZIP** on this page, then extract it.
+2. Open Claude Code in the extracted folder and ask:
+
+   > Install this statusline in my ~/.claude
+
+Claude copies `statusline.ps1` into `~/.claude` and adds the `statusLine` entry to your
+`settings.json`, keeping your existing settings.
+
+### With git (to keep it in sync)
+
 On a new machine:
 
 ```bash
