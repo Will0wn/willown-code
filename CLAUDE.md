@@ -67,3 +67,10 @@ ignorati (credenziali, sessioni, cache) non vengono toccati.
   ```
 - Per aggiungere un nuovo file al repo, inseriscilo **esplicitamente** in whitelist con una
   riga `!/<file>` nel `.gitignore`. Non rimuovere mai le esclusioni di sicurezza.
+
+## Anteprima nel README
+
+- L'immagine `statusline-preview-<data>.svg` va rigenerata a ogni modifica della statusline.
+- Ogni volta il file va **rinominato** con un nome nuovo (`statusline-preview-AAAAMMGG-HHMM.svg`),
+  eliminando il vecchio e aggiornando il link nel README: GitHub tiene in cache le immagini per
+  nome e altrimenti mostra la versione vecchia.

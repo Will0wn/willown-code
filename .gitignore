@@ -17,7 +17,7 @@
 !/settings.json
 !/statusline.ps1
 !/CLAUDE.md
-!/statusline-preview.svg
+!/statusline-preview-*.svg
 
 # ============================================================
 #  Esclusioni esplicite di sicurezza (ridondanti rispetto alla
