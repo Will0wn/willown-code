@@ -130,7 +130,7 @@ try {
 # determina (incluso un futuro guasto che fa scattare il catch), mostra
 # "Ciao, ?" invece di omettere il saluto -- cosi' il problema si nota subito.
 if (-not $name) { $name = '?' }
-$g = "${cCiao}Ciao, $name${reset} ${cSep}|${reset} "
+$g = "${cCiao}Ciao, $name${reset}"
 
 # indicatore "build N": numero totale di commit del repo di config.
 # Il repo coincide con la cartella che contiene QUESTO script ($PSScriptRoot): cosi'
@@ -186,14 +186,15 @@ $logo = for ($r = 0; $r -lt $art.Count; $r += 2) {
     # il reset iniziale impedisce che gli spazi in testa vengano tolti (sposterebbe il testo)
     "$reset$line "
 }
-[Console]::Out.Write("$($logo[0])$g${cModel}$m${reset}$sep$ctx$sep$usage$build")
+[Console]::Out.Write("$($logo[0])$g$build")
+[Console]::Out.Write("`n$($logo[1])${cModel}$m${reset}$sep$ctx$sep$usage")
 
 # seconda riga: nome della cartella di lavoro
 $cDir = "$esc[38;2;96;165;250m"   # blu -> cartella
 $dir = $data.workspace.current_dir
 if (-not $dir) { $dir = $data.cwd }
 $folder = if ($dir) { Split-Path -Leaf $dir } else { '?' }
-[Console]::Out.Write("`n$($logo[1])${cLabel}Folder${reset} ${cDir}$folder${reset}$ghSeg")
+[Console]::Out.Write("`n$($logo[2])${cLabel}Folder${reset} ${cDir}$folder${reset}$ghSeg")
 
 # terza riga: MCP connessi. 'claude mcp list' impiega ~8s, quindi gira in background
 # una volta per sessione e scrive in cache; finche' la cache non c'e' mostra "...".
@@ -227,7 +228,5 @@ Remove-Item -LiteralPath '$mcpLock' -Force
         Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $cmdLine } | Out-Null
     }
 } catch { $mcpText = '?' }
-[Console]::Out.Write("`n$($logo[2])${cLabel}MCP${reset} ${cMcp}$mcpText${reset}")
+[Console]::Out.Write("`n$($logo[3])${cLabel}MCP${reset} ${cMcp}$mcpText${reset}")
 
-# quarta riga: per ora solo la base del diavoletto
-[Console]::Out.Write("`n$($logo[3])")

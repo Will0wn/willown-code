@@ -10,11 +10,11 @@ The `~/.claude` folder is the repo itself: clone it, log in, and everything is i
 A PowerShell script that Claude Code runs every second. Next to a pixel-art devil that sways
 and blinks like a tamagotchi, it shows:
 
-1. greeting, model and effort level, context usage (green below 50%, yellow up to 80%, red
-   above), usage of the 5-hour window with reset time and countdown, and the commit count
-   of this repo as a build number
-2. the current folder and the GitHub account active on the machine
-3. the connected MCP servers, loaded in the background once per session
+1. greeting and the commit count of this repo as a build number
+2. model and effort level, context usage (green below 50%, yellow up to 80%, red above),
+   usage of the 5-hour window with reset time and countdown
+3. the current folder and the GitHub account active on the machine
+4. the connected MCP servers, loaded in the background once per session
 
 Requires PowerShell 7 (`pwsh`) and a truecolor terminal, such as Windows Terminal.
 
