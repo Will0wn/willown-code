@@ -157,25 +157,26 @@ $sep = " ${cSep}|${reset} "
 
 # diavoletto 😈 in pixel art alto 4 righe: ogni cella e' un mezzo blocco con due colori
 # (sopra = primo piano, sotto = sfondo), quindi 8 righe di pixel.
-# P = viola, . = trasparente (occhi e bocca sono "buchi")
-$px = @{ 'P' = '168;85;247' }
+# P = viola, L = viola chiaro (luce in alto a sinistra), S = viola scuro (ombra in basso a destra),
+# . = trasparente (occhi e bocca sono "buchi")
+$px = @{ 'P' = '168;85;247'; 'L' = '182;118;251'; 'S' = '126;34;206' }
 $art = @(
-    'P.........P'
-    'PP.PPPPP.PP'
-    '.PPPPPPPPP.'
-    'PP..PPP..PP'
-    'PPP..P..PPP'
-    'PPPPPPPPPPP'
-    'PP.PPPPP.PP'
-    '.PP.....PP.'
+    'L.........L'
+    'PL.LLLLP.PP'
+    '.LLPPPPPPP.'
+    'LP..PPP..PS'
+    'LPP..P..PPS'
+    'PPPPPPPPPPS'
+    'PP.PPPPP.SS'
+    '.PS.....SS.'
 )
 # animazione "tamagotchi": con refreshInterval la barra gira ogni secondo e il fotogramma
 # dipende dal secondo corrente -> ondeggia di una colonna e ogni tanto sbatte le palpebre
 # ciclo di 10s: 0 normale, 1 spostato, 2-3 normale, 4 spostato, 5 normale,
 # 6 occhi chiusi, 7-8 sguardo alternativo, 9 occhi chiusi (lo sguardo cambia sempre a occhi chiusi)
 $tick = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds() % 10
-if ($tick -in 6, 9) { $art[3] = 'PPPPPPPPPPP'; $art[4] = 'PP..PPP..PP' }   # occhi chiusi
-if ($tick -in 7, 8) { $art[4] = 'PPP.PPP.PPP' }                          # sguardo alternativo
+if ($tick -in 6, 9) { $art[3] = 'LPPPPPPPPPS'; $art[4] = 'LP..PPP..PS' }   # occhi chiusi
+if ($tick -in 7, 8) { $art[4] = 'LPP.PPP.PPS' }                          # sguardo alternativo
 $shift = $tick -in 1, 4
 $art = $art | ForEach-Object { if ($shift) { ".$_" } else { "$_." } }
 $logo = for ($r = 0; $r -lt $art.Count; $r += 2) {

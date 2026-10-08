@@ -3,7 +3,7 @@
 My [Claude Code](https://claude.com/claude-code) setup, under version control.
 The `~/.claude` folder is the repo itself: clone it, log in, and everything is in place.
 
-![Statusline preview](statusline-preview-20261008-121800.svg)
+![Statusline preview](statusline-preview-20261008-143211.svg)
 
 ## Statusline
 
